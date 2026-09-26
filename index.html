@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Privada Erizo — Finanzas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ PALETA "PIZARRA" — Privada Erizo (igual que el prototipo MÚUCH') ═══
+   primario #1e2530 · acento #94a3b8 · claro #f1f5f9
+   Para cambiar de paleta, solo edita estas tres líneas y sus derivados. */
+:root {
+  --primario:    #1e2530;   /* encabezados, botones, texto principal */
+  --primario-2:  #2c3645;   /* degradado de inicio / hover */
+  --acento:      #94a3b8;   /* acento sobre fondo oscuro */
+  --acento-txt:  #64748b;   /* acento legible sobre fondo claro (links, subtítulos) */
+  --claro:       #f1f5f9;   /* fondo del contenido */
+  --linea:       #e2e8f0;   /* bordes */
+  --txt-2:       #475569;   /* texto secundario */
+  --verde: #15803d;   --verde-bg: #f0fdf4;
+  --rojo:  #b91c1c;   --rojo-bg:  #fef2f2;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:var(--claro); color:var(--primario); min-height:100vh; }
+.hidden { display:none !important; }
+.screen { display:none; min-height:100vh; flex-direction:column; }
+.screen.active { display:flex; }
+
+#s-inicio {
+  background: radial-gradient(ellipse at 30% 0%, var(--primario-2) 0%, var(--primario) 75%);
+  align-items:center; justify-content:center; padding:32px 24px;
+}
+.inicio-logo { text-align:center; margin-bottom:40px; }
+.inicio-logo .logo-img {
+  width:100px; height:100px; border-radius:50%;
+  border:2.5px solid var(--acento);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Playfair Display',serif; font-weight:700; font-size:26px; color:var(--primario);
+  background:#fff; margin:0 auto 18px; object-fit:cover;
+  box-shadow:0 0 0 7px rgba(148,163,184,.18), 0 8px 24px rgba(0,0,0,.3);
+}
+.inicio-logo h1 { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:#fff; letter-spacing:.3px; text-shadow:none; }
+.inicio-logo .sub { font-size:9.5px; color:var(--acento); letter-spacing:2.8px; text-transform:uppercase; font-weight:700; margin-top:7px; }
+.inicio-logo .admin-txt { font-size:11px; color:#fff; margin-top:8px; letter-spacing:.3px; opacity:.85; }
+.inicio-btns { display:flex; flex-direction:column; gap:10px; width:100%; max-width:340px; }
+.btn-primary, .btn-secondary { border-radius:13px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.3px; }
+.btn-primary { background:var(--primario); border:1.5px solid var(--primario); color:#fff; box-shadow:0 4px 14px rgba(30,37,48,.18); }
+.btn-secondary { background:#fff; border:2px solid var(--primario); color:var(--primario); padding:14px; }
+.btn-primary:active { transform:scale(0.97); background:var(--primario-2); }
+.btn-secondary:active { transform:scale(0.97); background:var(--claro); }
+/* En la pantalla de inicio (fondo oscuro) los botones se invierten */
+#s-inicio .btn-primary { background:var(--claro); border-color:var(--claro); color:var(--primario); box-shadow:0 4px 16px rgba(0,0,0,.25); }
+#s-inicio .btn-secondary { background:transparent; border-color:var(--acento); color:#fff; }
+#s-inicio .btn-secondary:active { background:rgba(148,163,184,.15); }
+.btn-primary:disabled { opacity:.6; }
+
+.app-header {
+  background:var(--primario); padding:14px 18px; display:flex; align-items:center; gap:12px;
+  border-bottom:1px solid var(--primario); }
+.app-header .back { background:none; border:none; color:var(--acento); font-size:22px; cursor:pointer; padding:4px; }
+.app-header .header-title h1 { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; color:#fff; }
+.app-header .header-title p { font-size:11px; color:var(--acento); margin-top:2px; letter-spacing:.2px; font-weight:600; }
+
+.content { flex:1; padding:14px 16px; max-width:480px; width:100%; margin:0 auto; background:var(--claro); }
+
+.card { background:#fff; border:1px solid var(--linea); border-radius:16px; padding:18px;
+  box-shadow:0 3px 14px rgba(39,75,109,.05); margin-bottom:14px; }
+.card-title { font-size:15px; font-weight:700; color:var(--primario); margin-bottom:14px; font-family:'Playfair Display',serif; }
+.fg { margin-bottom:14px; }
+.fg label { display:block; font-size:12px; color:var(--txt-2); margin-bottom:5px; font-weight:600; }
+.fg select, .campo { width:100%; padding:12px 14px; border:1.5px solid var(--linea); border-radius:10px;
+  font-size:14px; background:var(--claro); color:var(--primario); font-family:inherit; }
+
+.seccion-titulo { font-size:11.5px; font-weight:700; color:var(--txt-2); text-transform:uppercase;
+  letter-spacing:.7px; margin:18px 0 10px; opacity:.75; }
+
+.resumen-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px; }
+.resumen-box { background:#fff; border:1px solid var(--linea); border-radius:12px; padding:14px; text-align:center; }
+.resumen-box .rb-label { font-size:11px; color:var(--txt-2); margin-bottom:5px; }
+.resumen-box .rb-valor { font-size:21px; font-weight:700; font-family:'Playfair Display',serif; }
+.resumen-box.verde .rb-valor { color:var(--verde); }
+.resumen-box.rojo .rb-valor { color:var(--rojo); }
+
+.unidad-row { background:#fff; border:1px solid var(--linea); border-radius:12px; padding:13px 16px;
+  margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+  transition:border-color .15s; }
+.unidad-row:active { background:var(--claro); border-color:var(--acento); }
+.unidad-nombre { font-size:14px; font-weight:700; color:var(--primario); }
+.unidad-edif { font-size:11.5px; color:var(--txt-2); opacity:.7; }
+.badge { font-size:11px; font-weight:700; padding:4px 11px; border-radius:20px; }
+.badge.Pagado { background:var(--verde-bg); color:var(--verde); }
+.badge.Adeudo { background:var(--rojo-bg); color:var(--rojo); }
+
+.mosaico-edificios { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; align-items:start; }
+.mosaico-item { grid-column:span 1; padding:0; overflow:hidden; margin-bottom:0; }
+.mosaico-item.expandido { grid-column:1 / -1; }
+.mosaico-header { padding:16px 10px; text-align:center; cursor:pointer; }
+.mosaico-header .mo-edificio { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--primario); }
+.mosaico-header .mo-ratio { font-size:11px; color:var(--txt-2); opacity:.75; margin-top:4px; }
+.mosaico-header .mo-chevron { font-size:13px; color:var(--acento-txt); font-weight:700; margin-top:6px; }
+.mosaico-header.al-corriente { background:var(--verde-bg); }
+.mosaico-header.con-adeudo { background:var(--rojo-bg); }
+
+.historial-mes { display:flex; justify-content:space-between; align-items:center; padding:10px 0;
+  border-bottom:1px solid var(--claro); }
+.historial-mes:last-child { border-bottom:none; }
+.hm-periodo { font-size:13px; color:var(--txt-2); }
+.hm-monto { font-size:13.5px; font-weight:700; }
+
+.loader { text-align:center; padding:40px 20px; color:var(--txt-2); font-size:13px; }
+.error-box { background:var(--rojo-bg); color:var(--rojo); border-radius:10px; padding:12px 14px; font-size:13px; margin-bottom:12px; }
+.msg { display:none; background:var(--verde-bg); color:var(--verde); border-radius:10px; padding:12px 14px; font-size:13px; margin-bottom:12px; }
+.msg.show { display:block; }
+.vacio { text-align:center; padding:16px; color:var(--txt-2); font-size:13px; }
+
+.footnote { text-align:center; font-size:11px; color:var(--txt-2); opacity:.55; margin-top:20px; padding-bottom:20px; }
+
+.filtros { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.filtro-btn { flex:1; padding:13px 8px; border-radius:11px; border:1.5px solid var(--linea);
+  background:#fff; font-size:13.5px; font-weight:700; color:var(--txt-2); cursor:pointer; white-space:nowrap; }
+.filtro-btn.active { background:var(--primario); color:#fff; border-color:var(--primario); }
+
+.foto-upload { border:2px dashed var(--linea); border-radius:14px; padding:22px 16px; text-align:center; cursor:pointer; background:var(--claro); }
+.foto-upload span { font-size:28px; display:block; margin-bottom:8px; }
+.foto-upload div { font-size:13px; font-weight:600; color:var(--primario); }
+.preview-foto { width:100%; border-radius:12px; margin-top:10px; border:1px solid var(--linea); }
+
+.tabbar { display:flex; border-top:1px solid var(--linea); background:#fff; position:sticky; bottom:0; }
+.tabbar button { flex:1; background:none; border:none; padding:10px 4px 8px;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  font-size:9.5px; font-weight:700; color:var(--acento-txt); cursor:pointer; }
+.tabbar button.active { color:var(--primario); }
+.tabbar button .tab-icon { font-size:18px; }
+.tabbar button .tab-dot { width:14px; height:2px; border-radius:2px; background:var(--acento); margin-top:1px; visibility:hidden; }
+.tabbar button.active .tab-dot { visibility:visible; }
+</style>
+</head>
+<body>
+
+<!-- INICIO -->
+<div class="screen active" id="s-inicio">
+  <div class="inicio-logo">
+    <img class="logo-img" src="logoerizo.jpeg" alt="Erizo" onerror="this.onerror=null; this.outerHTML='<div class=&quot;logo-img&quot;>ER</div>';">
+    <h1>Privada Erizo</h1>
+    <div class="sub">Finanzas de la privada</div>
+    <div class="admin-txt">MÚUCH' Administración Residencial</div>
+  </div>
+  <div class="inicio-btns">
+    <button class="btn-primary" onclick="ir('s-login-comite')">Entrar como Comité</button>
+    <button class="btn-secondary" onclick="ir('s-select-depto')">Entrar como Propietario</button>
+    <button class="btn-secondary" onclick="ir('s-login-personal')">Entrar como Personal</button>
+  </div>
+</div>
+
+<!-- LOGIN PROPIETARIO -->
+<div class="screen" id="s-select-depto">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-inicio')">←</button>
+    <div class="header-title"><h1>Propietario</h1><p>Accede a tu estado de cuenta</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Iniciar sesión</div>
+      <div class="fg"><label>Unidad</label><select id="select-unidad"></select></div>
+      <div class="fg">
+        <label>Clave de acceso</label>
+        <input type="password" id="input-clave-prop" class="campo" placeholder="••••" maxlength="4" inputmode="numeric">
+      </div>
+      <div id="prop-login-error" class="error-box hidden"></div>
+      <button class="btn-primary" style="width:100%;" onclick="entrarPropietario()">Ver mi estado de cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN COMITÉ -->
+<div class="screen" id="s-login-comite">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-inicio')">←</button>
+    <div class="header-title"><h1>Comité</h1><p>Acceso administrativo</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Iniciar sesión</div>
+      <div class="fg"><label>Nombre</label><input type="text" id="input-nombre-comite" class="campo" placeholder="Tu nombre"></div>
+      <div class="fg"><label>Clave de acceso</label><input type="password" id="input-clave-comite" class="campo" placeholder="Clave personal"></div>
+      <div id="comite-login-error" class="error-box hidden"></div>
+      <button class="btn-primary" style="width:100%;" onclick="entrarComite()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- VISTA COMITÉ -->
+<div class="screen" id="s-comite">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-inicio')">←</button>
+    <div class="header-title"><h1>Panel del Comité</h1><p id="comite-sub">Cargando...</p></div>
+  </div>
+  <div class="content" id="comite-content"><div class="loader">Cargando información financiera…</div></div>
+  <div class="tabbar" id="comite-tabbar"></div>
+</div>
+
+<!-- DETALLE DE UNIDAD -->
+<div class="screen" id="s-detalle">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-comite')">←</button>
+    <div class="header-title"><h1 id="detalle-titulo">Unidad</h1><p>Historial completo</p></div>
+  </div>
+  <div class="content" id="detalle-content"></div>
+</div>
+
+<!-- VISTA PROPIETARIO -->
+<div class="screen" id="s-propietario">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-select-depto')">←</button>
+    <div class="header-title"><h1 id="prop-titulo">Mi unidad</h1><p>Estado de cuenta</p></div>
+  </div>
+  <div class="content" id="prop-content"></div>
+  <div class="tabbar" id="prop-tabbar"></div>
+</div>
+
+<!-- AGREGAR PERSONAL -->
+<div class="screen" id="s-agregar-personal">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-comite')">←</button>
+    <div class="header-title"><h1>Agregar personal</h1><p>Genera su clave de acceso</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Nuevo trabajador</div>
+      <div class="fg"><label>Nombre completo</label><input type="text" id="input-nuevo-nombre" class="campo" placeholder="Nombre del trabajador"></div>
+      <div class="fg"><label>Servicio asignado</label><select id="select-nuevo-rol"></select></div>
+      <div id="agregar-personal-error" class="error-box hidden"></div>
+      <div id="agregar-personal-exito" class="msg"></div>
+      <button class="btn-primary" style="width:100%;" onclick="agregarPersonal()">Registrar y generar clave</button>
+    </div>
+    <div class="seccion-titulo">Personal registrado</div>
+    <div id="lista-personal-existente"></div>
+  </div>
+</div>
+
+<!-- CLAVES DE PROPIETARIOS -->
+<div class="screen" id="s-claves-propietarios">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-comite')">←</button>
+    <div class="header-title"><h1>Claves de propietarios</h1><p>Repártelas con cada depto</p></div>
+  </div>
+  <div class="content">
+    <div class="fg"><input type="text" id="buscar-clave-depto" class="campo" style="background:#fff;" placeholder="Buscar depto (ej. 4B)" oninput="filtrarClavesPropietarios()"></div>
+    <div id="lista-claves-propietarios"></div>
+  </div>
+</div>
+
+<!-- LOGIN PERSONAL -->
+<div class="screen" id="s-login-personal">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-inicio')">←</button>
+    <div class="header-title"><h1>Personal</h1><p>Registrar actividad realizada</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Iniciar sesión</div>
+      <div class="fg"><label>Nombre</label><input type="text" id="input-nombre-personal" class="campo" placeholder="Tu nombre"></div>
+      <div class="fg"><label>Clave de acceso</label><input type="password" id="input-clave-personal" class="campo" placeholder="••••" maxlength="4" inputmode="numeric"></div>
+      <div id="personal-login-error" class="error-box hidden"></div>
+      <button class="btn-primary" style="width:100%;" onclick="entrarPersonal()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRAR SERVICIO -->
+<div class="screen" id="s-registrar-servicio">
+  <div class="app-header">
+    <button class="back" onclick="ir('s-inicio')">←</button>
+    <div class="header-title"><h1 id="registrar-titulo">Registrar actividad</h1><p id="registrar-sub">Servicio</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Nueva actividad</div>
+      <div class="fg hidden" id="fg-servicio-comite">
+        <label>Servicio</label>
+        <select id="select-servicio-comite"></select>
+      </div>
+      <div class="fg">
+        <label>Foto de evidencia</label>
+        <div class="foto-upload" onclick="document.getElementById('input-foto-servicio').click();">
+          <span>📷</span><div id="texto-foto-servicio">Tomar foto o elegir de la galería</div>
+        </div>
+        <input type="file" id="input-foto-servicio" accept="image/*" class="hidden" onchange="previsualizarFoto()">
+        <img id="preview-foto-servicio" class="preview-foto hidden">
+      </div>
+      <div class="fg">
+        <label>Descripción de lo realizado</label>
+        <textarea id="input-descripcion-servicio" class="campo" style="min-height:80px;" placeholder="Ej. Limpieza de filtro y ajuste de cloro"></textarea>
+      </div>
+      <div id="registrar-servicio-error" class="error-box hidden"></div>
+      <div id="registrar-servicio-exito" class="msg"></div>
+      <button class="btn-primary" style="width:100%;" onclick="enviarRegistroServicio()" id="btn-enviar-servicio">Guardar registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRAR MOVIMIENTO DE CAJA (Comité) -->
+<div class="screen" id="s-registrar-gasto">
+  <div class="app-header">
+    <button class="back" onclick="volverAGastos()">←</button>
+    <div class="header-title"><h1>Registrar movimiento</h1><p>Entrada o salida de caja</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Nuevo movimiento</div>
+      <div class="fg">
+        <label>Tipo</label>
+        <div class="filtros" style="margin-bottom:0;">
+          <button class="filtro-btn active" id="tipo-salida" onclick="elegirTipoMovimiento('Salida')">Salida (gasto)</button>
+          <button class="filtro-btn" id="tipo-entrada" onclick="elegirTipoMovimiento('Entrada')">Entrada</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label id="label-foto-gasto">Foto del comprobante</label>
+        <div class="foto-upload" onclick="document.getElementById('input-foto-gasto').click();">
+          <span>🧾</span><div id="texto-foto-gasto">Tomar foto o elegir de la galería</div>
+        </div>
+        <input type="file" id="input-foto-gasto" accept="image/*" class="hidden" onchange="previsualizarFotoGasto()">
+        <img id="preview-foto-gasto" class="preview-foto hidden">
+      </div>
+      <div class="fg">
+        <label>Concepto</label>
+        <textarea id="input-concepto-gasto" class="campo" style="min-height:70px;" placeholder="Ej. Pago de químicos para alberca, septiembre"></textarea>
+      </div>
+      <div class="fg">
+        <label>Monto (MXN)</label>
+        <input type="number" id="input-monto-gasto" class="campo" placeholder="Ej. 1500" min="0" step="0.01">
+      </div>
+      <div id="registrar-gasto-error" class="error-box hidden"></div>
+      <div id="registrar-gasto-exito" class="msg"></div>
+      <button class="btn-primary" style="width:100%;" onclick="enviarRegistroGasto()" id="btn-enviar-gasto">Guardar movimiento</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGLAMENTO -->
+<div class="screen" id="s-reglamento">
+  <div class="app-header">
+    <div class="header-title"><h1>Reglamento interno</h1><p id="reglamento-nombre-privada">Antes de continuar</p></div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">Aceptación de reglamento</div>
+      <p id="reglamento-mensaje" style="font-size:13.5px; line-height:1.5; margin-bottom:14px;"></p>
+      <div id="reglamento-texto" style="max-height:280px; overflow-y:auto; background:var(--claro); border:1px solid var(--linea); border-radius:10px; padding:14px; font-size:12.5px; color:var(--txt-2); line-height:1.6; white-space:pre-wrap;"></div>
+    </div>
+    <div id="reglamento-error" class="error-box hidden"></div>
+    <button class="btn-primary" style="width:100%;" id="btn-aceptar-reglamento" onclick="aceptarReglamento()">He leído y acepto el reglamento</button>
+    <button class="btn-secondary" style="width:100%; margin-top:10px; opacity:.85;" onclick="ir('s-inicio')">Cancelar y salir</button>
+  </div>
+</div>
+
+<script>
+/* ═══ CONFIGURACIÓN DE ERIZO ═══ */
+const API_URL = "https://script.google.com/macros/s/AKfycbzOUPWxkUOcO8o8IMN01uVdp0lRxReP0bz3elx8L6xbihQ4czkwFlgqDp6EkcOjqhw6kQ/exec";
+const SERVICIOS = ["Piscina", "Áreas comunes", "Jardinería", "Pintura"]; // ← ajustar a los servicios reales de Erizo
+
+let dataUnidad = null;
+let dataComite = null;
+let credComite = { nombre: "", clave: "" };
+let sesionUnidad = { unidad: "", clave: "", tipo: "", etiqueta: null, apodo: null };
+let configGlobal = { plan: "Plus" };
+const ORDEN_PLAN = { Esencial: 0, Plus: 1, Integral: 2 };
+let moduloPropActivo = 'finanzas';
+let moduloComiteActivo = 'finanzas';
+let detalleActual = null;
+
+const $ = id => document.getElementById(id);
+const dinero = m => "$" + Number(m).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function mostrarError(id, texto){ $(id).textContent = texto; $(id).classList.remove('hidden'); }
+function ocultar(id){ $(id).classList.add('hidden'); }
+
+function ir(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 's-select-depto') prepararSelectUnidades();
+}
+
+/* ── Servicios (una sola lista para toda la app) ── */
+function opcionesServicios(){ return SERVICIOS.map(s => `<option value="${s}">${s}</option>`).join(''); }
+function botonesFiltroServicio(fnName){
+  return ['Todos', ...SERVICIOS].map(s =>
+    `<button class="filtro-btn ${s === 'Todos' ? 'active' : ''}" data-serv="${s}" onclick="${fnName}('${s}')">${s}</button>`
+  ).join('');
+}
+function marcarFiltroServicio(contId, servicio){
+  document.querySelectorAll('#' + contId + ' .filtro-btn').forEach(b => b.classList.toggle('active', b.dataset.serv === servicio));
+}
+
+/* ── Utilidades de historial ── */
+function periodoLegible(p){
+  const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  const [y, m] = p.split("-");
+  return meses[parseInt(m, 10) - 1] + " " + y;
+}
+function ultimoEstado(historial){ return (historial && historial.length) ? historial[historial.length - 1] : null; }
+function obtenerHistorialPorPrefix(idPrefix){
+  return idPrefix.startsWith('det') ? dataComite.find(x => x.unidad === detalleActual).historial : dataUnidad.historial;
+}
+function textoMonto(h){
+  if (h.estado === "Pagado") return "$" + h.monto.toLocaleString();
+  return h.monto > 0 ? "-$" + h.monto.toLocaleString() : "Adeudo";
+}
+function filaHistorial(h){
+  const color = h.estado === "Pagado" ? "var(--verde)" : "var(--rojo)";
+  return `<div class="historial-mes"><span class="hm-periodo">${periodoLegible(h.periodo)}</span><span class="hm-monto" style="color:${color}">${textoMonto(h)}</span></div>`;
+}
+
+function construirSelectorPeriodo(historial, idPrefix){
+  const anios = [...new Set(historial.map(h => h.periodo.split("-")[0]))].sort();
+  const ultimoAnio = anios[anios.length - 1];
+  const nombresMeses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `
+    <div class="card">
+      <div class="card-title">Consultar un mes específico</div>
+      <div style="display:flex; gap:10px;">
+        <div class="fg" style="flex:1; margin-bottom:0;">
+          <label>Año</label>
+          <select id="${idPrefix}-sel-anio" onchange="actualizarPeriodoSeleccionado('${idPrefix}')">
+            ${anios.map(a => `<option value="${a}" ${a === ultimoAnio ? 'selected' : ''}>${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg" style="flex:1; margin-bottom:0;">
+          <label>Mes</label>
+          <select id="${idPrefix}-sel-mes" onchange="actualizarPeriodoSeleccionado('${idPrefix}')">
+            ${nombresMeses.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}">${m}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div id="${idPrefix}-resultado" style="margin-top:16px;">
+        <div class="vacio" style="font-size:12.5px;">Elige año y mes para ver ese periodo.</div>
+      </div>
+    </div>`;
+}
+
+function actualizarPeriodoSeleccionado(idPrefix){
+  const historial = obtenerHistorialPorPrefix(idPrefix);
+  const periodoBuscado = $(idPrefix + '-sel-anio').value + "-" + $(idPrefix + '-sel-mes').value;
+  const registro = historial.find(h => h.periodo === periodoBuscado);
+  const box = $(idPrefix + '-resultado');
+  if (!registro){
+    box.innerHTML = `<div class="vacio">Sin información para este periodo (posiblemente aún no aplicaba para esta unidad).</div>`;
+    return;
+  }
+  const color = registro.estado === "Pagado" ? "var(--verde)" : "var(--rojo)";
+  box.innerHTML = `
+    <div style="text-align:center; padding:10px 0;">
+      <div style="font-size:12px; color:var(--txt-2); margin-bottom:6px;">${periodoLegible(registro.periodo)}</div>
+      <div style="font-size:24px; font-weight:800; color:${color}; font-family:'Playfair Display',serif;">${textoMonto(registro)}</div>
+    </div>`;
+}
+
+function construirFiltroHistorial(idPrefix){
+  return `
+    <div class="seccion-titulo">Historial completo</div>
+    <div class="filtros">
+      <button class="filtro-btn active" id="${idPrefix}-btn-todos" onclick="filtrarHistorial('${idPrefix}','todos')">Todos</button>
+      <button class="filtro-btn" id="${idPrefix}-btn-pagado" onclick="filtrarHistorial('${idPrefix}','Pagado')">Pagados</button>
+      <button class="filtro-btn" id="${idPrefix}-btn-adeudo" onclick="filtrarHistorial('${idPrefix}','Adeudo')">No pagados</button>
+    </div>
+    <div class="card" id="${idPrefix}-historial-lista"></div>`;
+}
+
+function filtrarHistorial(idPrefix, filtro){
+  const historial = obtenerHistorialPorPrefix(idPrefix);
+  const filtrado = filtro === 'todos' ? historial : historial.filter(h => h.estado === filtro);
+  $(idPrefix + '-btn-todos').classList.toggle('active', filtro === 'todos');
+  $(idPrefix + '-btn-pagado').classList.toggle('active', filtro === 'Pagado');
+  $(idPrefix + '-btn-adeudo').classList.toggle('active', filtro === 'Adeudo');
+  $(idPrefix + '-historial-lista').innerHTML = filtrado.length
+    ? filtrado.slice().reverse().map(filaHistorial).join('')
+    : `<div class="vacio">Sin registros en este filtro.</div>`;
+}
+
+function construirResumenAnual(historial, idPrefix){
+  const totales = {};
+  historial.forEach(h => {
+    const anio = h.periodo.split("-")[0];
+    if (!totales[anio]) totales[anio] = { aportado: 0, adeudo: 0 };
+    if (h.estado === "Pagado") totales[anio].aportado += h.monto; else totales[anio].adeudo += h.monto;
+  });
+  let html = `<div class="card"><div class="card-title">Resumen por año</div>`;
+  Object.keys(totales).sort().forEach(anio => {
+    const t = totales[anio];
+    html += `
+      <div class="unidad-row" style="align-items:flex-start;" onclick="toggleDesgloseAnio('${idPrefix}','${anio}')">
+        <div class="unidad-nombre">${anio}</div>
+        <div style="text-align:right;">
+          <div class="badge Pagado" style="margin-bottom:4px; display:inline-block;">Aportado $${t.aportado.toLocaleString()}</div>
+          ${t.adeudo > 0 ? `<div class="badge Adeudo" style="display:inline-block;">Adeudo -$${t.adeudo.toLocaleString()}</div>` : ''}
+        </div>
+      </div>
+      <div id="${idPrefix}-desglose-${anio}" class="hidden" style="margin:-4px 0 10px 0; padding:0 4px;"></div>`;
+  });
+  if (!Object.keys(totales).length) html += `<div class="vacio">Aún no hay pagos registrados.</div>`;
+  return html + `</div>`;
+}
+
+function toggleDesgloseAnio(idPrefix, anio){
+  const box = $(idPrefix + '-desglose-' + anio);
+  if (!box.classList.contains('hidden')){ box.classList.add('hidden'); box.innerHTML = ''; return; }
+  box.innerHTML = obtenerHistorialPorPrefix(idPrefix).filter(h => h.periodo.startsWith(anio)).map(filaHistorial).join('');
+  box.classList.remove('hidden');
+}
+
+/* ── Comité ── */
+async function entrarComite(){
+  const nombre = $('input-nombre-comite').value.trim();
+  const clave = $('input-clave-comite').value.trim();
+  ocultar('comite-login-error');
+  if (!nombre || !clave) return mostrarError('comite-login-error', "Ingresa tu nombre y clave.");
+  try {
+    const res = await fetch(API_URL + "?accion=panelComite&nombre=" + encodeURIComponent(nombre) + "&clave=" + encodeURIComponent(clave));
+    const data = await res.json();
+    if (data.error) return mostrarError('comite-login-error', data.error === "Sin permiso" ? "No tienes permiso de Comité." : "Nombre o clave incorrectos.");
+    credComite = { nombre, clave };
+    dataComite = data;
+    ir('s-comite');
+    $('comite-sub').textContent = data.length + " unidades registradas";
+    moduloComiteActivo = 'finanzas';
+    renderTabBarComite();
+    renderModuloComite();
+  } catch(err){
+    mostrarError('comite-login-error', "No se pudo conectar con el servidor.");
+  }
+}
+
+function renderTabBar(contId, tabs, activo, fnName){
+  $(contId).innerHTML = tabs.filter(t => ORDEN_PLAN[configGlobal.plan] >= ORDEN_PLAN[t.planMin]).map(t => `
+    <button class="${activo === t.key ? 'active' : ''}" onclick="${fnName}('${t.key}')">
+      <span class="tab-icon">${t.icon}</span>${t.label}<span class="tab-dot"></span>
+    </button>`).join('');
+}
+
+function renderTabBarComite(){
+  renderTabBar('comite-tabbar', [
+    { key:'finanzas', label:'Finanzas', icon:'💰', planMin:'Esencial' },
+    { key:'bitacora', label:'Bitácora', icon:'🧾', planMin:'Plus' },
+    { key:'gastos',   label:'Caja',     icon:'💵', planMin:'Plus' },
+  ], moduloComiteActivo, 'cambiarModuloComite');
+}
+
+function cambiarModuloComite(key){
+  moduloComiteActivo = key;
+  renderTabBarComite();
+  renderModuloComite();
+}
+
+function renderModuloComite(){
+  const cont = $('comite-content');
+  if (moduloComiteActivo === 'finanzas'){
+    let pagados = 0, adeudos = 0;
+    dataComite.forEach(u => {
+      const ult = ultimoEstado(u.historial);
+      if (ult && ult.estado === "Pagado") pagados++; else if (ult) adeudos++;
+    });
+    cont.innerHTML = `
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <div class="card" style="flex:1; text-align:center; cursor:pointer; padding:14px 6px; margin-bottom:0;" onclick="irAgregarPersonal()">
+          <div style="font-size:20px;">👷</div><div style="font-size:10.5px; font-weight:700; margin-top:4px;">Agregar personal</div>
+        </div>
+        <div class="card" style="flex:1; text-align:center; cursor:pointer; padding:14px 6px; margin-bottom:0;" onclick="irClavesPropietarios()">
+          <div style="font-size:20px;">🔑</div><div style="font-size:10.5px; font-weight:700; margin-top:4px;">Claves de deptos</div>
+        </div>
+      </div>
+      <div class="resumen-grid">
+        <div class="resumen-box verde" style="cursor:pointer;" onclick="filtrarListaComite('corriente')"><div class="rb-label">Al corriente</div><div class="rb-valor">${pagados}</div></div>
+        <div class="resumen-box rojo" style="cursor:pointer;" onclick="filtrarListaComite('adeudo')"><div class="rb-label">Con adeudo</div><div class="rb-valor">${adeudos}</div></div>
+      </div>
+      <div class="filtros" style="margin:10px 0 6px 0;">
+        <button class="filtro-btn active" id="btn-filtro-todos-comite" onclick="filtrarListaComite('todos')">Ver todas</button>
+      </div>
+      <div class="seccion-titulo">Unidades</div>
+      <div id="lista-unidades-comite"></div>`;
+    renderListaUnidadesComite(dataComite);
+  }
+  else if (moduloComiteActivo === 'bitacora'){
+    cont.innerHTML = `
+      <div class="filtros" id="com-bit-filtros">${botonesFiltroServicio('filtrarBitacoraComite')}</div>
+      <div id="comite-bitacora-lista"><div class="loader">Cargando…</div></div>`;
+    filtrarBitacoraComite('Todos');
+  }
+  else if (moduloComiteActivo === 'gastos'){
+    cont.innerHTML = `
+      <div class="card" style="text-align:center; cursor:pointer; padding:14px 6px; margin-bottom:12px;" onclick="abrirRegistrarGasto()">
+        <div style="font-size:20px;">➕🧾</div><div style="font-size:12.5px; font-weight:700; margin-top:4px;">Registrar entrada o salida</div>
+      </div>
+      <div id="comite-gastos-lista"><div class="loader">Cargando…</div></div>`;
+    cargarGastos('comite-gastos-lista');
+  }
+}
+
+function renderListaUnidadesComite(data){
+  const grupos = {};
+  data.forEach(u => { (grupos[u.edificio] = grupos[u.edificio] || []).push(u); });
+  const edificios = Object.keys(grupos).sort((a, b) => Number(a) - Number(b));
+  if (!edificios.length){
+    $('lista-unidades-comite').innerHTML = `<div class="vacio">Sin unidades en este filtro.</div>`;
+    return;
+  }
+  let html = `<div class="mosaico-edificios">`;
+  edificios.forEach(ed => {
+    const unidades = grupos[ed];
+    const pagados = unidades.filter(u => { const ult = ultimoEstado(u.historial); return ult && ult.estado === "Pagado"; }).length;
+    const filas = unidades.map((u, i) => {
+      const ult = ultimoEstado(u.historial);
+      const estado = ult ? ult.estado : "—";
+      return `
+        <div class="unidad-row" style="border-radius:0; border:none; ${i === unidades.length - 1 ? '' : 'border-bottom:1px solid var(--claro);'} margin-bottom:0; padding:12px 16px;" onclick="verDetalle('${esc(u.unidad)}')">
+          <div class="unidad-nombre">${esc(u.unidad)}</div>
+          <span class="badge ${estado === "Pagado" ? "Pagado" : "Adeudo"}">${estado}</span>
+        </div>`;
+    }).join('');
+    html += `
+      <div class="card mosaico-item" id="edificio-${ed}-card">
+        <div class="mosaico-header ${pagados === unidades.length ? 'al-corriente' : 'con-adeudo'}" onclick="toggleEdificio('${ed}')">
+          <div class="mo-edificio">Edificio ${ed}</div>
+          <div class="mo-ratio">${pagados}/${unidades.length} al corriente</div>
+          <div class="mo-chevron" id="edificio-${ed}-chevron">▾ ver deptos</div>
+        </div>
+        <div id="edificio-${ed}-body" class="hidden" style="border-top:1px solid var(--linea);">${filas}</div>
+      </div>`;
+  });
+  $('lista-unidades-comite').innerHTML = html + `</div>`;
+}
+
+function toggleEdificio(ed){
+  const body = $('edificio-' + ed + '-body');
+  const abierto = !body.classList.contains('hidden');
+  body.classList.toggle('hidden', abierto);
+  $('edificio-' + ed + '-chevron').textContent = abierto ? '▾ ver deptos' : '▴ ocultar';
+  $('edificio-' + ed + '-card').classList.toggle('expandido', !abierto);
+}
+
+function filtrarListaComite(filtro){
+  $('btn-filtro-todos-comite').classList.toggle('active', filtro === 'todos');
+  let filtrado = dataComite;
+  if (filtro === 'corriente') filtrado = dataComite.filter(u => { const ult = ultimoEstado(u.historial); return ult && ult.estado === "Pagado"; });
+  else if (filtro === 'adeudo') filtrado = dataComite.filter(u => { const ult = ultimoEstado(u.historial); return ult && ult.estado === "Adeudo"; });
+  renderListaUnidadesComite(filtrado);
+}
+
+function verDetalle(unidad){
+  const u = dataComite.find(x => x.unidad === unidad);
+  if (!u) return;
+  detalleActual = unidad;
+  $('detalle-titulo').textContent = "Depto " + u.unidad;
+  $('detalle-content').innerHTML = construirResumenAnual(u.historial, 'det') + construirSelectorPeriodo(u.historial, 'det') + construirFiltroHistorial('det');
+  ir('s-detalle');
+  filtrarHistorial('det', 'todos');
+}
+
+/* ── Propietario ── */
+async function prepararSelectUnidades(){
+  const sel = $('select-unidad');
+  sel.innerHTML = '<option>Cargando…</option>';
+  try {
+    const lista = await (await fetch(API_URL + "?accion=listaUnidades")).json();
+    sel.innerHTML = lista.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
+  } catch(err){
+    sel.innerHTML = '<option>Error al cargar</option>';
+  }
+}
+
+async function entrarPropietario(){
+  const unidad = $('select-unidad').value;
+  const clave = $('input-clave-prop').value.trim();
+  ocultar('prop-login-error');
+  if (!clave) return mostrarError('prop-login-error', "Ingresa tu clave.");
+  try {
+    const data = await (await fetch(API_URL + "?accion=loginUnidad&unidad=" + encodeURIComponent(unidad) + "&clave=" + encodeURIComponent(clave))).json();
+    if (data.error) return mostrarError('prop-login-error', "Clave incorrecta para esta unidad.");
+    sesionUnidad = { unidad: data.unidad, clave, tipo: data.tipo, etiqueta: data.etiqueta, apodo: data.apodo };
+    if (!data.reglamentoAceptado) abrirReglamento(); else await cargarHistorialUnidad();
+  } catch(err){
+    mostrarError('prop-login-error', "No se pudo conectar con el servidor.");
+  }
+}
+
+async function cargarHistorialUnidad(){
+  try {
+    const data = await (await fetch(API_URL + "?accion=historialUnidad&unidad=" + encodeURIComponent(sesionUnidad.unidad) + "&clave=" + encodeURIComponent(sesionUnidad.clave))).json();
+    if (data.error){
+      ir('s-select-depto');
+      return mostrarError('prop-login-error', "No se pudo cargar tu información. Intenta de nuevo.");
+    }
+    dataUnidad = data;
+    $('prop-titulo').textContent = "Depto " + data.unidad;
+    moduloPropActivo = 'finanzas';
+    renderTabBarProp();
+    renderModuloProp();
+    ir('s-propietario');
+  } catch(err){
+    ir('s-select-depto');
+  }
+}
+
+async function abrirReglamento(){
+  let config = {};
+  try { config = await (await fetch(API_URL + "?accion=configPrivada")).json(); } catch(err){}
+  let mensaje;
+  if (sesionUnidad.tipo === "titular"){
+    mensaje = `Yo, propietario del departamento ${sesionUnidad.unidad}, confirmo que he leído el reglamento interno de la privada y acepto cumplir con las normas y sanciones que en él se establecen.`;
+  } else {
+    const etiquetaTxt = sesionUnidad.etiqueta ? sesionUnidad.etiqueta + ", " : "";
+    mensaje = `Yo, ${etiquetaTxt}usuario autorizado del departamento ${sesionUnidad.unidad}, confirmo que he leído el reglamento interno de la privada y acepto cumplir con las normas y sanciones que en él se establecen.`;
+  }
+  $('reglamento-mensaje').textContent = mensaje;
+  $('reglamento-texto').textContent = config.reglamento || "Reglamento no disponible por el momento.";
+  $('reglamento-nombre-privada').textContent = config.nombrePrivada || "Antes de continuar";
+  ocultar('reglamento-error');
+  ir('s-reglamento');
+}
+
+async function aceptarReglamento(){
+  const btn = $('btn-aceptar-reglamento');
+  ocultar('reglamento-error');
+  btn.disabled = true; btn.textContent = "Guardando…";
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "aceptarReglamento", unidad: sesionUnidad.unidad, clave: sesionUnidad.clave, tipo: sesionUnidad.tipo })
+    })).json();
+    if (data.error) mostrarError('reglamento-error', data.error);
+    else await cargarHistorialUnidad();
+  } catch(err){
+    mostrarError('reglamento-error', "No se pudo conectar con el servidor.");
+  } finally {
+    btn.disabled = false; btn.textContent = "He leído y acepto el reglamento";
+  }
+}
+
+function renderTabBarProp(){
+  renderTabBar('prop-tabbar', [
+    { key:'finanzas', label:'Finanzas', icon:'💰', planMin:'Esencial' },
+    { key:'usuarios', label:'Usuarios', icon:'👤', planMin:'Plus' },
+    { key:'bitacora', label:'Bitácora', icon:'🧾', planMin:'Plus' },
+    { key:'gastos',   label:'Caja',     icon:'💵', planMin:'Plus' },
+  ], moduloPropActivo, 'cambiarModuloProp');
+}
+
+function cambiarModuloProp(key){
+  moduloPropActivo = key;
+  renderTabBarProp();
+  renderModuloProp();
+}
+
+function renderModuloProp(){
+  const cont = $('prop-content');
+  const u = dataUnidad;
+  if (moduloPropActivo === 'finanzas'){
+    let html = '';
+    if (sesionUnidad.tipo === "usuario" && sesionUnidad.apodo){
+      html += `<div style="text-align:center; font-size:13px; color:var(--txt-2); margin-bottom:10px;">Bienvenido, ${esc(sesionUnidad.apodo)}</div>`;
+    }
+    const ult = ultimoEstado(u.historial);
+    if (ult){
+      const color = ult.estado === "Pagado" ? "var(--verde)" : "var(--rojo)";
+      html += `
+        <div class="card" style="text-align:center;">
+          <div class="card-title">Estado más reciente (${periodoLegible(ult.periodo)})</div>
+          <div style="font-size:26px;font-weight:800;color:${color};font-family:'Playfair Display',serif;">${ult.estado === "Pagado" ? "Al corriente" : "Con adeudo"}</div>
+        </div>`;
+    }
+    html += construirResumenAnual(u.historial, 'prop');
+    html += `<div style="text-align:center; font-size:11px; color:var(--txt-2); opacity:.7; margin:-2px 0 14px;">Solo ves tu propia unidad — nunca la de otros deptos.</div>`;
+    html += construirSelectorPeriodo(u.historial, 'prop');
+    html += construirFiltroHistorial('prop');
+    cont.innerHTML = html;
+    filtrarHistorial('prop', 'todos');
+  }
+  else if (moduloPropActivo === 'usuarios'){
+    if (sesionUnidad.tipo === 'titular'){
+      cont.innerHTML = `<div class="seccion-titulo">Usuarios de este depto</div><div id="gestion-usuarios-cont"><div class="loader">Cargando…</div></div>`;
+      cargarGestionUsuarios();
+    } else {
+      cont.innerHTML = `
+        <div class="card">
+          <div class="card-title">Tu apodo (opcional)</div>
+          <div class="fg"><label>Cómo quieres que te saludemos</label><input type="text" id="input-apodo" class="campo" placeholder="Ej. Mario" value="${esc(sesionUnidad.apodo || '')}"></div>
+          <div id="apodo-msg" class="msg"></div>
+          <button class="btn-secondary" style="width:100%;" onclick="guardarApodo()">Guardar apodo</button>
+        </div>`;
+    }
+  }
+  else if (moduloPropActivo === 'bitacora'){
+    cont.innerHTML = `
+      <div class="seccion-titulo">Bitácora de servicios</div>
+      <div class="filtros" id="prop-bit-filtros">${botonesFiltroServicio('filtrarBitacoraProp')}</div>
+      <div id="prop-bitacora-lista"><div class="loader">Cargando…</div></div>`;
+    filtrarBitacoraProp('Todos');
+  }
+  else if (moduloPropActivo === 'gastos'){
+    cont.innerHTML = `
+      <div style="font-size:11.5px; color:var(--txt-2); opacity:.75; margin:4px 0 10px; text-align:center;">Movimientos registrados por el comité, con comprobante.</div>
+      <div id="prop-gastos-lista"><div class="loader">Cargando…</div></div>`;
+    cargarGastos('prop-gastos-lista');
+  }
+}
+
+async function guardarApodo(){
+  const apodo = $('input-apodo').value.trim();
+  const msgBox = $('apodo-msg');
+  msgBox.classList.remove('show');
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "actualizarApodo", unidad: sesionUnidad.unidad, clave: sesionUnidad.clave, apodo })
+    })).json();
+    if (!data.error){
+      sesionUnidad.apodo = apodo;
+      msgBox.textContent = "Apodo actualizado.";
+      msgBox.classList.add('show');
+    }
+  } catch(err){}
+}
+
+async function cargarGestionUsuarios(){
+  const cont = $('gestion-usuarios-cont');
+  try {
+    const data = await (await fetch(API_URL + "?accion=listaUsuariosUnidad&unidad=" + encodeURIComponent(sesionUnidad.unidad) + "&clave=" + encodeURIComponent(sesionUnidad.clave))).json();
+    if (data.error){ cont.innerHTML = '<div class="error-box">' + esc(data.error) + '</div>'; return; }
+    let html = `<div class="card"><div class="card-title">Plan: ${data.limite} usuario(s) por depto</div>`;
+    if (!data.usuarios.length){
+      html += `<div class="vacio" style="padding:0 0 10px;">Aún no has agregado usuarios adicionales.</div>`;
+    } else {
+      data.usuarios.forEach(us => {
+        html += `
+          <div class="unidad-row">
+            <div>
+              <div class="unidad-nombre">${esc(us.etiqueta || "Usuario adicional")}</div>
+              <div class="unidad-edif">${us.reglamentoAceptado ? "Reglamento aceptado" : "Reglamento pendiente"}</div>
+            </div>
+            <span class="badge Pagado">${esc(us.clave)}</span>
+          </div>`;
+      });
+    }
+    if (data.usuarios.length + 1 < data.limite){
+      html += `
+        <div class="fg" style="margin-top:10px;"><label>Etiqueta (ej. Inquilino, Familiar)</label><input type="text" id="input-nueva-etiqueta" class="campo" placeholder="Opcional"></div>
+        <div id="agregar-usuario-error" class="error-box hidden"></div>
+        <button class="btn-secondary" style="width:100%;" onclick="agregarUsuarioDepto()">Agregar usuario</button>`;
+    } else {
+      html += `<div style="text-align:center; font-size:12.5px; color:var(--txt-2); margin-top:8px;">Ya alcanzaste el máximo de usuarios de tu plan.</div>`;
+    }
+    cont.innerHTML = html + `</div>`;
+  } catch(err){
+    cont.innerHTML = '<div class="error-box">Error de conexión.</div>';
+  }
+}
+
+async function agregarUsuarioDepto(){
+  const etiqueta = $('input-nueva-etiqueta').value.trim();
+  ocultar('agregar-usuario-error');
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "agregarUsuarioUnidad", unidad: sesionUnidad.unidad, claveTitular: sesionUnidad.clave, etiqueta })
+    })).json();
+    if (data.error) return mostrarError('agregar-usuario-error', data.error);
+    cargarGestionUsuarios();
+  } catch(err){
+    mostrarError('agregar-usuario-error', "No se pudo conectar con el servidor.");
+  }
+}
+
+/* ── Agregar personal ── */
+async function irAgregarPersonal(){
+  ir('s-agregar-personal');
+  $('agregar-personal-error').classList.add('hidden');
+  const cont = $('lista-personal-existente');
+  try {
+    const data = await (await fetch(API_URL + "?accion=listaPersonal&nombre=" + encodeURIComponent(credComite.nombre) + "&clave=" + encodeURIComponent(credComite.clave))).json();
+    if (data.error){ cont.innerHTML = '<div class="error-box">No se pudo cargar el personal.</div>'; return; }
+    cont.innerHTML = data.map(p => `
+      <div class="unidad-row">
+        <div>
+          <div class="unidad-nombre">${esc(p.nombre)}</div>
+          <div class="unidad-edif">${esc(p.rol)}${p.estatus !== "Activo" ? " · Inactivo" : ""}</div>
+        </div>
+        <span class="badge Pagado">${esc(p.clave)}</span>
+      </div>`).join('') || '<div class="vacio">Aún no hay personal registrado.</div>';
+  } catch(err){
+    cont.innerHTML = '<div class="error-box">Error de conexión.</div>';
+  }
+}
+
+async function agregarPersonal(){
+  const nuevoNombre = $('input-nuevo-nombre').value.trim();
+  const nuevoRol = $('select-nuevo-rol').value;
+  const exitoBox = $('agregar-personal-exito');
+  ocultar('agregar-personal-error');
+  exitoBox.classList.remove('show');
+  if (!nuevoNombre) return mostrarError('agregar-personal-error', "Escribe el nombre del trabajador.");
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "agregarPersonal", nombre: credComite.nombre, clave: credComite.clave, nuevoNombre, nuevoRol })
+    })).json();
+    if (data.error) return mostrarError('agregar-personal-error', data.error);
+    $('input-nuevo-nombre').value = '';
+    await irAgregarPersonal();
+    exitoBox.textContent = `Registrado: ${data.nombre} (${data.rol}) — su clave es ${data.clave}`;
+    exitoBox.classList.add('show');
+  } catch(err){
+    mostrarError('agregar-personal-error', "No se pudo conectar con el servidor.");
+  }
+}
+
+/* ── Claves de propietarios ── */
+let clavesPropietariosCache = [];
+
+async function irClavesPropietarios(){
+  ir('s-claves-propietarios');
+  $('buscar-clave-depto').value = '';
+  try {
+    const data = await (await fetch(API_URL + "?accion=clavesPropietarios&nombre=" + encodeURIComponent(credComite.nombre) + "&clave=" + encodeURIComponent(credComite.clave))).json();
+    if (data.error){ $('lista-claves-propietarios').innerHTML = '<div class="error-box">No se pudo cargar la información.</div>'; return; }
+    clavesPropietariosCache = data;
+    renderClavesPropietarios(data);
+  } catch(err){
+    $('lista-claves-propietarios').innerHTML = '<div class="error-box">Error de conexión.</div>';
+  }
+}
+
+function renderClavesPropietarios(data){
+  $('lista-claves-propietarios').innerHTML = data.map(u => `
+    <div class="unidad-row">
+      <div class="unidad-nombre">${esc(u.unidad)}</div>
+      <span class="badge Pagado">${esc(u.clave || "Sin asignar")}</span>
+    </div>`).join('') || '<div class="vacio">Sin resultados.</div>';
+}
+
+function filtrarClavesPropietarios(){
+  const texto = $('buscar-clave-depto').value.trim().toLowerCase();
+  renderClavesPropietarios(clavesPropietariosCache.filter(u => u.unidad.toLowerCase().includes(texto)));
+}
+
+/* ── Personal: login + registrar actividad ── */
+let credPersonal = { nombre: "", clave: "", rol: "" };
+let fotoBase64Servicio = null;
+let fotoBase64Gasto = null;
+let tipoMovimiento = 'Salida';
+
+async function entrarPersonal(){
+  const nombre = $('input-nombre-personal').value.trim();
+  const clave = $('input-clave-personal').value.trim();
+  ocultar('personal-login-error');
+  if (!nombre || !clave) return mostrarError('personal-login-error', "Ingresa tu nombre y clave.");
+  try {
+    const data = await (await fetch(API_URL + "?accion=loginPersonal&nombre=" + encodeURIComponent(nombre) + "&clave=" + encodeURIComponent(clave))).json();
+    if (!data.valido) return mostrarError('personal-login-error', data.error || "Nombre o clave incorrectos.");
+    credPersonal = { nombre: data.nombre, clave, rol: data.rol };
+    abrirRegistrarServicio();
+  } catch(err){
+    mostrarError('personal-login-error', "No se pudo conectar con el servidor.");
+  }
+}
+
+function limpiarFormularioServicio(){
+  $('input-foto-servicio').value = '';
+  $('preview-foto-servicio').classList.add('hidden');
+  $('texto-foto-servicio').textContent = "Tomar foto o elegir de la galería";
+  $('input-descripcion-servicio').value = '';
+  fotoBase64Servicio = null;
+}
+
+function abrirRegistrarServicio(){
+  $('registrar-titulo').textContent = "Hola, " + credPersonal.nombre;
+  $('registrar-sub').textContent = credPersonal.rol === "Comité" ? "Registro de servicios" : credPersonal.rol;
+  $('fg-servicio-comite').classList.toggle('hidden', credPersonal.rol !== "Comité");
+  limpiarFormularioServicio();
+  ocultar('registrar-servicio-error');
+  $('registrar-servicio-exito').classList.remove('show');
+  ir('s-registrar-servicio');
+}
+
+/* Redimensiona y comprime la imagen antes de enviarla */
+function comprimirImagen(file, maxAncho = 1280, calidad = 0.7){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxAncho){ h = Math.round(h * (maxAncho / w)); w = maxAncho; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', calidad));
+      };
+      img.onerror = () => reject(new Error('No se pudo leer la imagen'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function procesarFoto(inputId, previewId, textoId){
+  const input = $(inputId);
+  if (!input.files || !input.files[0]) return null;
+  $(textoId).textContent = "Procesando imagen…";
+  try {
+    const b64 = await comprimirImagen(input.files[0]);
+    $(previewId).src = b64;
+    $(previewId).classList.remove('hidden');
+    $(textoId).textContent = "Foto lista — toca para cambiarla";
+    return b64;
+  } catch(err){
+    $(textoId).textContent = "No se pudo procesar la foto, intenta de nuevo";
+    return null;
+  }
+}
+
+async function previsualizarFoto(){ fotoBase64Servicio = await procesarFoto('input-foto-servicio', 'preview-foto-servicio', 'texto-foto-servicio'); }
+async function previsualizarFotoGasto(){ fotoBase64Gasto = await procesarFoto('input-foto-gasto', 'preview-foto-gasto', 'texto-foto-gasto'); }
+
+async function enviarRegistroServicio(){
+  const exitoBox = $('registrar-servicio-exito');
+  ocultar('registrar-servicio-error');
+  exitoBox.classList.remove('show');
+  const descripcion = $('input-descripcion-servicio').value.trim();
+  const servicio = credPersonal.rol === "Comité" ? $('select-servicio-comite').value : credPersonal.rol;
+  if (!fotoBase64Servicio) return mostrarError('registrar-servicio-error', "Toma o sube una foto de evidencia.");
+  if (!descripcion) return mostrarError('registrar-servicio-error', "Describe la actividad realizada.");
+
+  const btn = $('btn-enviar-servicio');
+  btn.disabled = true; btn.textContent = "Guardando…";
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "registrarBitacora", nombre: credPersonal.nombre, clave: credPersonal.clave, servicio, descripcion, foto: fotoBase64Servicio })
+    })).json();
+    if (data.error) mostrarError('registrar-servicio-error', data.error);
+    else {
+      exitoBox.textContent = "Actividad registrada correctamente.";
+      exitoBox.classList.add('show');
+      limpiarFormularioServicio();
+    }
+  } catch(err){
+    mostrarError('registrar-servicio-error', "No se pudo conectar con el servidor.");
+  } finally {
+    btn.disabled = false; btn.textContent = "Guardar registro";
+  }
+}
+
+/* ── Branding (nombre y plan desde CONFIG_PRIVADA) ── */
+async function aplicarBrandingPrivada(){
+  try {
+    const config = await (await fetch(API_URL + "?accion=configPrivada")).json();
+    configGlobal = config;
+    if (config.nombrePrivada){
+      document.title = config.nombrePrivada + " — Finanzas";
+      document.querySelector('#s-inicio .inicio-logo h1').textContent = config.nombrePrivada;
+      const footnote = document.querySelector('.footnote');
+      if (footnote) footnote.textContent = "MÚUCH' Administración Residencial · " + config.nombrePrivada;
+    }
+  } catch(err){ /* sigue con el nombre por defecto */ }
+}
+
+/* ── Bitácora ── */
+function renderBitacoraLista(data, contId){
+  $(contId).innerHTML = data.map(b => `
+    <div class="card" style="padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+        <div style="font-weight:700; font-size:13.5px;">${esc(b.servicio)}</div>
+        <div style="font-size:11px; color:var(--txt-2);">${esc(b.fecha)}</div>
+      </div>
+      <div style="font-size:12.5px; margin-bottom:8px;">${esc(b.descripcion)}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:11px; color:var(--txt-2); opacity:.75;">Registró: ${esc(b.responsable)}</div>
+        ${b.foto ? `<a href="${esc(b.foto)}" target="_blank" style="font-size:11.5px; font-weight:700; color:var(--acento-txt);">Ver foto →</a>` : ''}
+      </div>
+    </div>`).join('') || '<div class="vacio">Sin registros aún.</div>';
+}
+
+async function cargarBitacora(url, contId){
+  try {
+    const data = await (await fetch(url)).json();
+    if (data.error){ $(contId).innerHTML = '<div class="error-box">' + esc(data.error) + '</div>'; return; }
+    renderBitacoraLista(data, contId);
+  } catch(err){
+    $(contId).innerHTML = '<div class="error-box">Error de conexión.</div>';
+  }
+}
+
+function filtrarBitacoraProp(servicio){
+  marcarFiltroServicio('prop-bit-filtros', servicio);
+  cargarBitacora(API_URL + "?accion=bitacoraPropietario&unidad=" + encodeURIComponent(sesionUnidad.unidad) + "&clave=" + encodeURIComponent(sesionUnidad.clave) + "&servicio=" + encodeURIComponent(servicio), 'prop-bitacora-lista');
+}
+
+function filtrarBitacoraComite(servicio){
+  marcarFiltroServicio('com-bit-filtros', servicio);
+  cargarBitacora(API_URL + "?accion=bitacora&nombre=" + encodeURIComponent(credComite.nombre) + "&clave=" + encodeURIComponent(credComite.clave) + "&servicio=" + encodeURIComponent(servicio), 'comite-bitacora-lista');
+}
+
+/* ── Caja: entradas y salidas (Comité registra, todos ven) ── */
+function elegirTipoMovimiento(tipo){
+  tipoMovimiento = tipo;
+  $('tipo-salida').classList.toggle('active', tipo === 'Salida');
+  $('tipo-entrada').classList.toggle('active', tipo === 'Entrada');
+  $('label-foto-gasto').textContent = tipo === 'Salida' ? "Foto del comprobante" : "Foto del comprobante (opcional)";
+  $('input-concepto-gasto').placeholder = tipo === 'Salida' ? "Ej. Pago de químicos para alberca, septiembre" : "Ej. Cuotas de mantenimiento cobradas en efectivo";
+}
+
+function limpiarFormularioGasto(){
+  $('input-foto-gasto').value = '';
+  $('preview-foto-gasto').classList.add('hidden');
+  $('texto-foto-gasto').textContent = "Tomar foto o elegir de la galería";
+  $('input-concepto-gasto').value = '';
+  $('input-monto-gasto').value = '';
+  fotoBase64Gasto = null;
+}
+
+function abrirRegistrarGasto(){
+  limpiarFormularioGasto();
+  elegirTipoMovimiento('Salida');
+  ocultar('registrar-gasto-error');
+  $('registrar-gasto-exito').classList.remove('show');
+  ir('s-registrar-gasto');
+}
+
+function volverAGastos(){
+  ir('s-comite');
+  cambiarModuloComite('gastos');
+}
+
+async function enviarRegistroGasto(){
+  const exitoBox = $('registrar-gasto-exito');
+  ocultar('registrar-gasto-error');
+  exitoBox.classList.remove('show');
+  const concepto = $('input-concepto-gasto').value.trim();
+  const monto = $('input-monto-gasto').value;
+  if (tipoMovimiento === 'Salida' && !fotoBase64Gasto) return mostrarError('registrar-gasto-error', "Toma o sube una foto del comprobante.");
+  if (!concepto) return mostrarError('registrar-gasto-error', "Escribe el concepto.");
+  if (!monto || Number(monto) <= 0) return mostrarError('registrar-gasto-error', "Ingresa el monto.");
+
+  const btn = $('btn-enviar-gasto');
+  btn.disabled = true; btn.textContent = "Guardando…";
+  try {
+    const data = await (await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ accion: "registrarGasto", nombre: credComite.nombre, clave: credComite.clave, tipo: tipoMovimiento, concepto, monto, foto: fotoBase64Gasto })
+    })).json();
+    if (data.error) mostrarError('registrar-gasto-error', data.error === "Sin permiso" ? "No tienes permiso de Comité." : data.error);
+    else {
+      exitoBox.textContent = (tipoMovimiento === 'Salida' ? "Salida" : "Entrada") + " registrada correctamente.";
+      exitoBox.classList.add('show');
+      limpiarFormularioGasto();
+    }
+  } catch(err){
+    mostrarError('registrar-gasto-error', "No se pudo conectar con el servidor.");
+  } finally {
+    btn.disabled = false; btn.textContent = "Guardar movimiento";
+  }
+}
+
+function renderGastosLista(data, contId){
+  if (!data.length){ $(contId).innerHTML = '<div class="vacio">Sin movimientos registrados aún.</div>'; return; }
+  const saldo = data[0].total; // el más reciente trae el saldo acumulado
+  let totEntradas = 0, totSalidas = 0;
+  data.forEach(g => { totEntradas += g.entrada; totSalidas += g.salida; });
+
+  let html = `
+    <div class="card" style="text-align:center;">
+      <div style="font-size:12px; color:var(--txt-2); margin-bottom:4px;">Saldo en caja</div>
+      <div style="font-size:28px; font-weight:800; font-family:'Playfair Display',serif; color:${saldo >= 0 ? 'var(--verde)' : 'var(--rojo)'};">${dinero(saldo)}</div>
+    </div>
+    <div class="resumen-grid" style="margin-bottom:14px;">
+      <div class="resumen-box verde"><div class="rb-label">Entradas</div><div class="rb-valor" style="font-size:16px;">${dinero(totEntradas)}</div></div>
+      <div class="resumen-box rojo"><div class="rb-label">Salidas</div><div class="rb-valor" style="font-size:16px;">${dinero(totSalidas)}</div></div>
+    </div>
+    <div class="seccion-titulo">Movimientos</div>`;
+
+  data.forEach(g => {
+    const esEntrada = g.entrada > 0;
+    html += `
+      <div class="card" style="padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;">
+          <div style="font-size:12.5px; font-weight:600;">${esc(g.concepto)}</div>
+          <div style="font-size:11px; color:var(--txt-2); white-space:nowrap;">${esc(g.fecha)}</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15px; font-weight:800; font-family:'Playfair Display',serif; color:${esEntrada ? 'var(--verde)' : 'var(--rojo)'};">
+            ${esEntrada ? '+' + dinero(g.entrada) : '-' + dinero(g.salida)}
+          </div>
+          ${g.foto ? `<a href="${esc(g.foto)}" target="_blank" style="font-size:11.5px; font-weight:700; color:var(--acento-txt);">Ver comprobante →</a>` : ''}
+        </div>
+        <div style="font-size:11px; color:var(--txt-2); opacity:.75; margin-top:6px;">
+          Saldo: ${dinero(g.total)}${g.registradoPor ? ' · Registró: ' + esc(g.registradoPor) : ''}
+        </div>
+      </div>`;
+  });
+  $(contId).innerHTML = html;
+}
+
+async function cargarGastos(contId){
+  try {
+    const data = await (await fetch(API_URL + "?accion=gastos")).json();
+    if (data.error){ $(contId).innerHTML = '<div class="error-box">' + esc(data.error) + '</div>'; return; }
+    renderGastosLista(data, contId);
+  } catch(err){
+    $(contId).innerHTML = '<div class="error-box">Error de conexión.</div>';
+  }
+}
+
+/* ── Arranque ── */
+$('select-nuevo-rol').innerHTML = opcionesServicios();
+$('select-servicio-comite').innerHTML = opcionesServicios();
+aplicarBrandingPrivada();
+</script>
+
+<div class="footnote">MÚUCH' Administración Residencial · Privada Erizo</div>
+
+</body>
+</html>
